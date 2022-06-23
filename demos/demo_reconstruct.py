@@ -43,6 +43,18 @@ def main(args):
     deca_cfg.model.use_tex = args.useTex
     deca_cfg.rasterizer_type = args.rasterizer_type
     deca = DECA(config = deca_cfg, device=device)
+    
+    save_dir = "/mnt/122sdc/vee_models/research/DECA/models/"
+    filename = os.path.join(save_dir, "deca.pth")
+    torch.save(deca.state_dict(), filename)
+
+    dummy_input_1 = torch.rand(1, 3, 224, 224) # NCHW
+
+    deca.eval()
+    torch.onnx.export(deca, dummy_input_1, filename[0:-4]+".onnx",export_params=True,verbose=False, do_constant_folding=True, opset_version=10)
+    net.train()
+    print("saved in:",epoch_save_dir)
+    
     # for i in range(len(testdata)):
     for i in tqdm(range(len(testdata))):
         name = testdata[i]['imagename']
